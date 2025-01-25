@@ -1,0 +1,15 @@
+sentence-transformers==3.0.1
+torch==2.3.1
+transformers==4.42.4
+fastapi[standard]
+redis==5.2.1
+datasets
+ragas
+requests
+scikit-learn
+opentelemetry-api 
+opentelemetry-sdk 
+opentelemetry-exporter-jaeger-thrift
+cassandra-driver
+websockets
+openai==0.27.5
