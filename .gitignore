@@ -3,6 +3,7 @@ test
 env
 # Ignore .terraform directory and its contents
 .terraform/
+.github/
 
 # Ignore .terraform.lock.hcl files
 *.terraform.lock.hcl
