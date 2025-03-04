@@ -26,8 +26,8 @@ logger = logging.getLogger(__name__)
 resource = Resource(attributes={SERVICE_NAME: "rag-system"})
 provider = TracerProvider(resource=resource)
 jaeger_exporter = JaegerExporter(
-    agent_host_name="jaeger-agent.observability.svc.cluster.local",
-    agent_port=6831,
+    agent_host_name=os.getenv("JAEGER_AGENT_HOST", "jaeger-agent.observability.svc.cluster.local"),
+    agent_port=int(os.getenv("JAEGER_AGENT_PORT", 6831)),
 )
 provider.add_span_processor(BatchSpanProcessor(jaeger_exporter))
 trace.set_tracer_provider(provider)
