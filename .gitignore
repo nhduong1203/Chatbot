@@ -1,0 +1,18 @@
+test
+.env
+env
+__pycache__/
+
+# Ignore .terraform directory and its contents
+.terraform/
+.github/
+
+# Ignore .terraform.lock.hcl files
+*.terraform.lock.hcl
+
+# Ignore any terraform state files
+*.tfstate
+
+data
+reids_data
+iac/ansible/secret/

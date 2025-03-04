@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-chat
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend-chat
+  template:
+    metadata:
+      labels:
+        app: backend-chat
+    spec:
+      nodeSelector:
+        workload: backend-chat
+      containers:
+      - name: backend-chat
+        image: sieucun/llmops-chat:latest
+        ports:
+        - containerPort: 8002
+        env:
+        - name: REDIS_HOST
+          value: redis
+        - name: REDIS_PORT
+          value: "6379"
+        - name: DOC_API_URL
+          value: http://backend-doc:8001
+        - name: CASSANDRA_PORT
+          value: "9042"
+        - name: CASSANDRA_HOST
+          value: cassandra
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: openai-api-key
+              key: OPENAI_API_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-chat
+spec:
+  selector:
+    app: backend-chat
+  ports:
+  - port: 8002
+    targetPort: 8002

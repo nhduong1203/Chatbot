@@ -1,0 +1,137 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: observability
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger
+  namespace: observability
+  labels:
+    app: jaeger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaeger
+  template:
+    metadata:
+      labels:
+        app: jaeger
+    spec:
+      containers:
+      - name: jaeger
+        image: jaegertracing/all-in-one:1.45
+        ports:
+        - containerPort: 6831
+          protocol: UDP # Jaeger Thrift Compact
+        - containerPort: 6832
+          protocol: UDP # Jaeger Thrift Binary
+        - containerPort: 5778
+          protocol: TCP # Configuration endpoint
+        - containerPort: 16686
+          protocol: TCP # Query UI
+        - containerPort: 14268
+          protocol: TCP # Collector HTTP endpoint
+        - containerPort: 14269
+          protocol: TCP # Admin endpoint
+        - containerPort: 14250
+          protocol: TCP # gRPC collector
+        - containerPort: 9411
+          protocol: TCP # Zipkin compatible endpoint
+        - containerPort: 4317
+          protocol: TCP # OTLP gRPC
+        - containerPort: 4318
+          protocol: TCP # OTLP HTTP
+        env:
+        - name: JAEGER_AGENT_PORT
+          value: "6831"
+        - name: COLLECTOR_ZIPKIN_HTTP_PORT
+          value: ":9411"
+        - name: COLLECTOR_OTLP_ENABLED
+          value: "true"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-agent
+  namespace: observability
+  labels:
+    app: jaeger
+spec:
+  type: ClusterIP
+  ports:
+  - name: thrift-compact
+    port: 6831
+    protocol: UDP
+    targetPort: 6831
+  - name: thrift-binary
+    port: 6832
+    protocol: UDP
+    targetPort: 6832
+  - name: config
+    port: 5778
+    protocol: TCP
+    targetPort: 5778
+  selector:
+    app: jaeger
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-query
+  namespace: observability
+  labels:
+    app: jaeger
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 16686
+    nodePort: 30002
+  selector:
+    app: jaeger
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-collector
+  namespace: observability
+  labels:
+    app: jaeger
+spec:
+  type: ClusterIP
+  ports:
+  - name: grpc
+    port: 14250
+    protocol: TCP
+    targetPort: 14250
+  - name: http
+    port: 14268
+    protocol: TCP
+    targetPort: 14268
+  - name: zipkin
+    port: 9411
+    protocol: TCP
+    targetPort: 9411
+  - name: otlp-http
+    port: 4318
+    protocol: TCP
+    targetPort: 4318
+  - name: otlp-grpc
+    port: 4317
+    protocol: TCP
+    targetPort: 4317
+  selector:
+    app: jaeger

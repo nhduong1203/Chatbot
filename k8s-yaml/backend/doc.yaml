@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-doc
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend-doc
+  template:
+    metadata:
+      labels:
+        app: backend-doc
+    spec:
+      nodeSelector:
+        workload: backend-doc
+      containers:
+      - name: backend-doc
+        image: sieucun/llmops-doc:latest
+        ports:
+        - containerPort: 8001
+        env:
+        - name: REDIS_HOST
+          value: redis
+        - name: REDIS_PORT
+          value: "6379"
+        - name: MINIO_HOST
+          value: minio
+        - name: MINIO_PORT
+          value: "9000"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-doc
+spec:
+  selector:
+    app: backend-doc
+  ports:
+  - port: 8001
+    targetPort: 8001
