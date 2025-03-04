@@ -136,6 +136,63 @@ resource "google_container_node_pool" "frontend" {
   }
 }
 
+
+# Node Pool for LLM
+resource "google_container_node_pool" "llm" {
+  name       = "${var.project_id}-llm-pool"
+  location   = var.region
+  cluster    = google_container_cluster.primary.name
+  node_count = 1
+
+  node_config {
+    machine_type = "g2-standard-12"
+    disk_size_gb = 250
+    disk_type    = "pd-balanced"
+    image_type   = "COS_CONTAINERD"
+
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/devstorage.read_only",
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+      "https://www.googleapis.com/auth/servicecontrol",
+      "https://www.googleapis.com/auth/service.management.readonly",
+      "https://www.googleapis.com/auth/trace.append"
+    ]
+
+    metadata = {
+      "disable-legacy-endpoints" = "true"
+    }
+
+    guest_accelerator {
+      type  = "nvidia-l4"
+      count = 1
+    }
+
+    shielded_instance_config {
+      enable_integrity_monitoring = true
+    }
+
+    advanced_machine_features {
+      enable_nested_virtualization = false
+    }
+  }
+
+  management {
+    auto_upgrade = true
+    auto_repair  = true
+  }
+
+  network_config {
+    enable_private_nodes = false
+  }
+
+  upgrade_settings {
+    max_surge  = 1
+    strategy   = "SURGE"
+  }
+
+}
+
 # Outputs
 output "kubernetes_cluster_name" {
   value = google_container_cluster.primary.name
