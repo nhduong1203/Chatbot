@@ -4,8 +4,8 @@ metadata:
   name: minio-secret
 type: Opaque
 data:
-  MINIO_ROOT_USER: YWRtaW4=  # Base64 for "admin"
-  MINIO_ROOT_PASSWORD: YWRtaW4xMjM=  # Base64 for "admin123"
+  MINIO_ROOT_USER:YWRtaW4=  # Base64 for "admin"
+  MINIO_ROOT_PASSWORD:YWRtaW4xMjM=  # Base64 for "admin123"
 
 ---
 

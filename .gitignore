@@ -1,6 +1,8 @@
 test
 .env
 env
+__pycache__/
+
 # Ignore .terraform directory and its contents
 .terraform/
 .github/

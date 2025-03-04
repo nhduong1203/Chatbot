@@ -2,10 +2,10 @@
 FROM pytorch/pytorch:2.3.1-cuda11.8-cudnn8-devel
 
 # Create application directory and copy files
-RUN mkdir /app
+WORKDIR /app
 COPY . /app/
 
-WORKDIR /app
+
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt

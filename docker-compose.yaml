@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # --------------------------------------------- DATABASE -----------------------------------------------------------
   cassandra:
     image: cassandra:latest
     container_name: cassandra
@@ -12,11 +11,17 @@ services:
       - CASSANDRA_CLUSTER_NAME=MyCluster
       - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
       - CASSANDRA_DC=datacenter1
+    healthcheck:
+      test: ["CMD", "cqlsh", "cassandra", "-e", "DESCRIBE KEYSPACES"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   cqlsh:
     image: cassandra:latest
     depends_on:
-      - cassandra
+      cassandra:
+        condition: service_healthy
     entrypoint: >
       bash -c "
       until cqlsh cassandra -e 'DESCRIBE KEYSPACES'; do
@@ -39,17 +44,24 @@ services:
     volumes:
       - ~/minio/data:/data
     command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://minio:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   redis:
     image: redis/redis-stack-server:7.2.0-v6
     ports:
       - 6379:6379
     healthcheck:
-      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      test: ["CMD", "redis-cli", "-h", "redis", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     volumes:
       - redis_data:/data
 
-  # --------------------------------------------- BACKEND -----------------------------------------------------------
   doc_management_api:
     container_name: doc_management_api
     build: ./app/backend/reference_doc
@@ -74,8 +86,15 @@ services:
           memory: 4g
           cpus: "2.0"
     depends_on:
-      - redis
-      - minio
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://doc_management_api:${DOC_FASTAPI_PORT}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   chat_api:
     container_name: chat_api
@@ -94,10 +113,16 @@ services:
     volumes:
       - ./init.cql:/init.cql
     depends_on:
-      - redis
-      - cassandra
+      redis:
+        condition: service_healthy
+      cassandra:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://chat_api:${CHAT_FASTAPI_PORT}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  # --------------------------------------------- FRONTEND -----------------------------------------------------------
   frontend_streamlit:
     container_name: frontend_streamlit
     build: ./app/frontend
@@ -106,14 +131,20 @@ services:
     environment:
       - JAEGER_AGENT_HOST=jaeger
       - JAEGER_AGENT_PORT=${JAEGER_AGENT_PORT}
-      - NGINX_URL=nginx:${NGINX_PORT} #NGINX_PORT=80
+      - NGINX_URL=nginx:${NGINX_PORT}
     depends_on:
-      - doc_management_api
-      - chat_api
+      doc_management_api:
+        condition: service_healthy
+      chat_api:
+        condition: service_healthy
     volumes:
       - ./app/frontend:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://frontend_streamlit:${FRONTEND_PORT}/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  # --------------------------------------------- OPS -----------------------------------------------------------
   jaeger:
     image: jaegertracing/all-in-one:1.45
     environment: 
@@ -132,6 +163,11 @@ services:
       - 9411:9411
       - 4317:4317
       - 4318:4318
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://jaeger:16686"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   nginx:
     image: nginx:latest
@@ -140,8 +176,15 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - chat_api
-      - doc_management_api
+      chat_api:
+        condition: service_healthy
+      doc_management_api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://nginx"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   redis_data:

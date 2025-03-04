@@ -16,7 +16,7 @@ spec:
         workload: backend-chat
       containers:
       - name: backend-chat
-        image: sieucun/llmops-chat
+        image: sieucun/llmops-chat:latest
         ports:
         - containerPort: 8002
         env:

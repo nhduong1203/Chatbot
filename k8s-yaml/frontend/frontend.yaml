@@ -16,7 +16,7 @@ spec:
         workload: frontend
       containers:
       - name: frontend
-        image: sieucun/llmops-frontend
+        image: sieucun/llmops-frontend:latest
         ports:
         - containerPort: 8501
         env:
