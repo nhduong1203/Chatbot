@@ -143,7 +143,7 @@ EOF
 
 This completes the setup for building, storing, and running the TensorRT-LLM engine with Triton Inference Server.
 
-### Create PV/PVC for Our Google Persistent Disk
+### Create PV/PVC for our Google Persistent Disk
 We will create a PersistentVolume (PV) and PersistentVolumeClaim (PVC) to bind our GPD so that the upcoming Pod can use TensorRT-LLM output.
 
 ```sh
@@ -271,7 +271,7 @@ kubectl get isvc llama
 
 ### Access the application
 
-After the LLM inference service is ready, you can obtain the IP address of the ASM gateway and access the LLM service through the gateway.
+After the LLM inference service is ready, you can obtain the IP address of the ASM gateway and access the LLM service through it. You also need to store this IP address in your environment file under the `ASM_GATEWAY_IP` key.
 
 ```
 ASM_GATEWAY_IP=`kubectl -n istio-system get svc istio-ingressgateway -ojsonpath='{.status.loadBalancer.ingress[0].ip}'`
