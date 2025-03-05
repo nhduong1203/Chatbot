@@ -210,12 +210,13 @@ Due to the limitations of GCP's free trial tier, I am unable to use instances wi
 
 | **Resource**                     | **Name**                           | **Machine Type** | **Disk Size (GB)** | **Preemptible** | **Labels**               | **Min Nodes** | **Max Nodes** | **Node Count** | **Workload**           |
 | -------------------------------- | ---------------------------------- | ---------------- | ------------------ | --------------- | ------------------------ | ------------- | ------------- | -------------- | ---------------------- |
-| **GKE Cluster**                  | `${var.project_id}-gke`            | N/A              | N/A                | N/A             | N/A                      | N/A           | N/A           | 1              | Cluster Management     |
-| **System Services Node Pool**    | `${var.project_id}-sys-svc-pool`   | e2-standard-2    | 40                 | No              | workload=system-services | 1             | 3             | 1              | MinIO and Redis        |
-| **Cassandra Node Pool**          | `${var.project_id}-cassandra-pool` | e2-highmem-4     | 40                 | No              | workload=cassandra       | 1             | 2             | 1              | Cassandra Database     |
-| **Backend Doc Node Pool**        | `${var.project_id}-doc-pool`       | e2-standard-4    | 40                 | No              | workload=backend-doc     | 1             | 2             | 1              | Backend Doc Management |
-| **Backend Chat Node Pool**       | `${var.project_id}-chat-pool`      | e2-standard-4    | 40                 | No              | workload=backend-chat    | 1             | 2             | 1              | Backend Chat Service   |
-| **Frontend and NGINX Node Pool** | `${var.project_id}-fe-pool`        | e2-medium        | 40                 | Yes             | workload=frontend        | 1             | 1             | 1              | Frontend & NGINX       |
+| **GKE Cluster**                  | `gke`            | N/A              | N/A                | N/A             | N/A                      | N/A           | N/A           | 1              | Cluster Management     |
+| **System Services Node Pool**    | `sys-svc-pool`   | e2-standard-2    | 40                 | No              | workload=system-services | 1             | 3             | 1              | MinIO and Redis        |
+| **Cassandra Node Pool**          | `cassandra-pool` | e2-highmem-4     | 40                 | No              | workload=cassandra       | 1             | 2             | 1              | Cassandra Database     |
+| **Backend Doc Node Pool**        | `doc-pool`       | e2-standard-4    | 40                 | No              | workload=backend-doc     | 1             | 2             | 1              | Backend Doc Management |
+| **Backend Chat Node Pool**       | `chat-pool`      | e2-standard-4    | 40                 | No              | workload=backend-chat    | 1             | 2             | 1              | Backend Chat Service   |
+| **Frontend and NGINX Node Pool** | `fe-pool`        | e2-medium        | 40                 | Yes             | workload=frontend        | 1             | 1             | 1              | Frontend & NGINX       |
+| **LLM Serving Node Pool** | `llm-pool`        | g2-standard-12 (L4 GPU)     | 150                 | Yes             | workload=llm        | 1             | 1             | 1              | LLM      |
 
 This completes the setup and deployment of the chatbot application on GKE. 🎉
 With NodePort Service, you can access the frontend from the external IP of a node.
